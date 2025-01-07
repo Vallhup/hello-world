@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query } from '@nestjs/common';
 import { AppService } from './app.service';
 
 interface Movie {
@@ -24,8 +24,14 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getMovies(){
-    return this.movies;
+  getMovies(
+    @Query('title') title?: string, // Query Parameter
+  ){
+    if(!title){
+      return this.movies;
+    }
+    
+    return this.movies.filter(m => m.title.startsWith(title));
   }
 
   @Get(':id')
@@ -72,7 +78,17 @@ export class AppController {
   }
 
   @Delete(':id')
-  deleteMovie(){
-    return 3;
+  deleteMovie(
+    @Param('id') id: string,
+  ){
+    const movieIndex = this.movies.findIndex(m => m.id === +id);
+
+    if(movieIndex === -1){
+      throw new NotFoundException('존재하지 않는 ID의 영화입니다!');
+    }
+
+   this.movies.splice(movieIndex, 1)
+
+   return id;
   }
 }
