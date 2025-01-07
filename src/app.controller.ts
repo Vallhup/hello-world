@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, NotFoundException, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 
 interface Movie {
@@ -19,6 +19,7 @@ export class AppController {
       title: '반지의 제왕',
     }
   ];
+  private idCounter = 3;
 
   constructor(private readonly appService: AppService) {}
 
@@ -39,12 +40,19 @@ export class AppController {
   }
 
   @Post()
-  postMovie(){
-    return {
-      id: 3,
-      name: '어벤져스',
-      character: ['아이언맨', '캡틴아메리카']
-    }
+  postMovie(
+    @Body('title') title: string,
+  ){
+    const movie: Movie = {
+      id: this.idCounter++,
+      title: title,
+    };
+
+    this.movies.push(
+      movie,
+    );
+
+    return movie;
   }
 
   @Patch(':id')
