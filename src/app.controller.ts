@@ -1,33 +1,41 @@
-import { Controller, Delete, Get, Patch, Post } from '@nestjs/common';
+import { Controller, Delete, Get, NotFoundException, Param, Patch, Post } from '@nestjs/common';
 import { AppService } from './app.service';
+
+interface Movie {
+  id: number;
+  title: string;
+}
+
 
 @Controller('movie') // 모든 메서드에 동일한 Path가 들어간다면 최상위에서 공통적으로 설정할 수 있다.
 export class AppController {
+  private movies : Movie[] = [
+    {
+      id: 1,
+      title: '해리포터',
+    },
+    {
+      id: 2,
+      title: '반지의 제왕',
+    }
+  ];
+
   constructor(private readonly appService: AppService) {}
 
   @Get()
   getMovies(){
-    return [
-      {
-        id: 1,
-        name: '해리포터',
-        character: ['해리포터', '엠마왓슨'],
-      },
-      {
-        id: 2,
-        name: '반지의 제왕',
-        character: ['간달프'],
-      }
-    ];
+    return this.movies;
   }
 
-  @Get('/:id')
-  getMovie(){
-    return {
-      id: 1,
-      name: '해리포터',
-      character: ['해리포터', '엠마왓슨'],
+  @Get(':id')
+  getMovie(@Param('id') id: string){
+    const movie = this.movies.find((m) => m.id === +id);
+
+    if(!movie){
+      throw new NotFoundException('존재하지 않는 ID의 영화입니다!');
     }
+
+    return movie; 
   }
 
   @Post()
@@ -39,7 +47,7 @@ export class AppController {
     }
   }
 
-  @Patch('/:id')
+  @Patch(':id')
   patchMovie(){
     return {
       id: 3,
@@ -48,7 +56,7 @@ export class AppController {
     }
   }
 
-  @Delete('/:id')
+  @Delete(':id')
   deleteMovie(){
     return 3;
   }
